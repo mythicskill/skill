@@ -1,21 +1,96 @@
+# Patch to provide url_quote for Flask compatibility with Werkzeug 3.x
+import werkzeug.urls
+if not hasattr(werkzeug.urls, "url_quote"):
+    import urllib.parse
+    werkzeug.urls.url_quote = urllib.parse.quote
+
 import os
 import uuid
 from io import BytesIO
 
-from flask import Flask, request, render_template, send_file, redirect, flash
+from flask import Flask, request, render_template_string, send_file, redirect, flash
 from werkzeug.utils import secure_filename
 
-# Import the conversion modules from the package
+# Import conversion modules from your package
 from image_to_skill.image_processor import ImageDetails
 from image_to_skill.code_generation import CodeGenerator, Mode, ParticleType
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "uploads"
-app.secret_key = 'haidanh912'  # Change this in production
+app.secret_key = 'your_secret_key'  # Replace with a secure secret in production
 
 # Ensure the upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+
+# HTML content for the UI
+INDEX_HTML = """
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Image to Skill Converter</title>
+</head>
+<body>
+  <h1>Image to Skill Converter</h1>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul style="color: red;">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <form method="post" enctype="multipart/form-data">
+    <div>
+      <label for="image">Upload Image:</label>
+      <input type="file" name="image" id="image" required>
+    </div>
+    <br>
+    <div>
+      <label for="mode">Select Mode:</label>
+      <select name="mode" id="mode">
+        <option value="HR">Horizontal</option>
+        <option value="VT">Vertical</option>
+      </select>
+    </div>
+    <br>
+    <div>
+      <label for="particle_type">Particle Type:</label>
+      <input type="text" name="particle_type" id="particle_type" value="flame" required>
+    </div>
+    <br>
+    <div>
+      <label for="particle_interval">Particle Interval:</label>
+      <input type="text" name="particle_interval" id="particle_interval" value="1.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="particle_size">Particle Size:</label>
+      <input type="text" name="particle_size" id="particle_size" value="1.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="base_forward_offset">Base Forward Offset (X):</label>
+      <input type="text" name="base_forward_offset" id="base_forward_offset" value="0.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="base_side_offset">Base Side Offset (Y):</label>
+      <input type="text" name="base_side_offset" id="base_side_offset" value="0.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="base_y_offset">Base Y Offset (Z):</label>
+      <input type="text" name="base_y_offset" id="base_y_offset" value="0.0" required>
+    </div>
+    <br>
+    <button type="submit">Start Conversion</button>
+  </form>
+</body>
+</html>
+"""
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -43,10 +118,9 @@ def index():
             return redirect(request.url)
         
         # Retrieve form parameters
-        mode_input = request.form.get("mode", "HR")  # Should be "HR" or "VT"
-        particle_type_input = request.form.get("particle_type", "flame")  # Enum values (e.g., "flame")
+        mode_input = request.form.get("mode", "HR")  # "HR" for Horizontal, "VT" for Vertical
+        particle_type_input = request.form.get("particle_type", "flame")  # e.g., "flame"
         try:
-            # Convert string inputs to appropriate enum types
             mode = Mode(mode_input)
             particle_type = ParticleType(particle_type_input)
         except Exception as e:
@@ -90,7 +164,8 @@ def index():
             mimetype="text/yaml"
         )
         
-    return render_template("index.html")
+    return render_template_string(INDEX_HTML)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)  # Change port if needed
+    # Running with the built-in Flask server (good for development only)
+    app.run(host="0.0.0.0", port=10000, debug=True)
