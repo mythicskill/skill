@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Image to Skill Converter</title>
+</head>
+<body>
+  <h1>Image to Skill Converter</h1>
+  <form method="post" enctype="multipart/form-data">
+    <div>
+      <label for="image">Upload Image:</label>
+      <input type="file" name="image" id="image" required>
+    </div>
+    <br>
+    <div>
+      <label for="mode">Select Mode:</label>
+      <select name="mode" id="mode">
+        <option value="HR">Horizontal</option>
+        <option value="VT">Vertical</option>
+      </select>
+    </div>
+    <br>
+    <div>
+      <label for="particle_type">Particle Type:</label>
+      <input type="text" name="particle_type" id="particle_type" value="flame" required>
+      <!-- You could replace the above with a select input listing allowed types -->
+    </div>
+    <br>
+    <div>
+      <label for="particle_interval">Particle Interval:</label>
+      <input type="text" name="particle_interval" id="particle_interval" value="1.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="particle_size">Particle Size:</label>
+      <input type="text" name="particle_size" id="particle_size" value="1.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="base_forward_offset">Base Forward Offset (X):</label>
+      <input type="text" name="base_forward_offset" id="base_forward_offset" value="0.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="base_side_offset">Base Side Offset (Y):</label>
+      <input type="text" name="base_side_offset" id="base_side_offset" value="0.0" required>
+    </div>
+    <br>
+    <div>
+      <label for="base_y_offset">Base Y Offset (Z):</label>
+      <input type="text" name="base_y_offset" id="base_y_offset" value="0.0" required>
+    </div>
+    <br>
+    <button type="submit">Start Conversion</button>
+  </form>
+</body>
+</html>
